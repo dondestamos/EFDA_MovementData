@@ -1,9 +1,21 @@
 function EFDA_conceptDemos()
+% Demonstration of elastic alignment (efda) using time-warping.
+% Methods from fdasrvf by J. Tucker (2014) are used. 
+% With current settings, two arbitrary signals (double-Gaussians) are aligned 1->2 or 2->1
+% or both aligned to an emerging mean. Various distances are computed and displayed
+% showing the invariance of Fisher-Rao distance to warping and allowing for a "good"
+% alignment.
+% Toggle flag_ShowSRRF to plot square-root-rate transformations of the signals instead.
+% Toggle EmulateL2 to imitate using L2-metric on the original signals.
+% Togghe EmulateDTW to show results of matlab-default DTW algorithm for alignment
+% Uncomment the section "Simultaneous warping" to see further demo of how the FR distance
+% metric is invariant to simultaneous warping.
+
 
 figpos0 = [0 0 0 0]; % Change if plotting not on the main monitor
 SampleRate = 500;
 NResamp = 200;
-flag_ShowSRRF = 1; % 0 - show function space and L2 distances on functions, or SRRF space and respective L2 (= Fisher-Rao on functions)
+flag_ShowSRRF = 0; % 0 - show function space and L2 distances on functions, or SRRF space and respective L2 (= Fisher-Rao on functions)
 flag_EmulateL2 = 0; % Emulating L2 on original signals.
 flag_EmulateDTW = 0; % Using dtw.
 DTW_Metric = 'euclidean'; % euclidean, absolute, squared, symmkl

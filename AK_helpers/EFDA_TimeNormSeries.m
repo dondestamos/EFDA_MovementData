@@ -177,7 +177,7 @@ warning('on','MATLAB:interp1:NaNstrip');
 NTrialsUsed = nnz(~flag_Discard);
 nanTriallist = find(flag_Discard);
 
-if opts.PreserveIntegral && ~strcmpi(opts.EFDAWarps,'orig')
+if opts.PreserveIntegral && ~strcmpi(opts.EFDAPreserving,'values')
 warning('Area preserving warping is only supported when aligning original signals, not derivatives or integrals. Ignoring area preserving and doing a default shape-preserving warping.');
 opts.PreserveIntegral = 0;
 end

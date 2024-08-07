@@ -1,4 +1,21 @@
-function EFDA_warps_visual_continuous_symmetric(varargin)
+function EFDA_warps_visual_continuous_symm(varargin)
+% Demonstration of effect that a few examples of warping functions have on a
+% one-dimensional signal.
+% For generating warps, approach from Tucker 2014 (fdasrvf package) is used, although
+% re-written.
+% A combination of four parameters for the function genwarp was found empirically with
+% some, probably incomplete, understanding of the math behind generating a shooting vector for the warping
+% function. These parameters however show very specific effects on resulting warping
+% functions that I consider convenient for ever using generative statistics of warps.
+
+% The original signal is similar to the one in the manuscript, a two-peaked Gaussian. In
+% this function, only warping functions "symmetric" w.r.t. the identity line (t=t) are
+% plotted, i.e. these warps oscillate around identity. 
+% See also the _asymm.m function for the warps which are entirely below or above identity.
+
+% Aleksei Krotov
+% Northeastern University, 2024.
+
 
 % When amplitude gets too large (examine for each warp), the pattern may change in terms
 % of the "fixed" (gamma = t) points and in terms of points with largest d_gamma/dt.
@@ -297,3 +314,4 @@ if CloseFig
 end
 
 end
+

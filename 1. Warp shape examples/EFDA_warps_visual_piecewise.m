@@ -1,4 +1,18 @@
 function EFDA_warps_visual_piecewise(varargin)
+% Demonstration of effect that a few examples of piecewise warping functions have on a
+% one-dimensional signal.
+% Warps are generated with three-to-four knots at predefined locations and piece-wise
+% linear segments between them.
+% This visualization helped me digest the concept of warping when I started studying this
+% approach.
+
+% The original signal is similar to the one in the manuscript, a two-peaked Gaussian. In
+% this function, only warping functions "symmetric" w.r.t. the identity line (t=t) are
+% plotted, i.e. these warps oscillate around identity. 
+% See also the _continuous_asymm.m and _continuous_symm.m functions for the continuous warps
+
+% Aleksei Krotov
+% Northeastern University, 2024.
 
 
 CloseFig = any(strcmpi(varargin,'CloseFig'));
@@ -135,76 +149,6 @@ sp.Original.XAxisLocation = 'top';
 plot(time, fsource,'k');
 
 
-% Special treatment for compress and stretch because of weird axes limits...
-% LEAVE THEM FOR FUTURE??
-% posgam = [0.13 0.15 0.1 0.4];
-% sp.gam(1) = subplot('Position',posgam); hold on; box on;
-% xlabel('$t$','interpreter','latex');
-% ylabel('\gamma','interpreter','tex');
-% ylim([0 0.8]);
-% xticks([0 1]);yticks ([0 0.8]); %xticklabels({'0','0.8'});
-% plot(time, gamm(:,1),'r');
-%
-% poswarped = [0.13 0.65 0.1 0.24];
-% sp.warped(1) = subplot('Position',poswarped); hold on;
-% sp.warped(1).YLabel.Interpreter = 'latex';
-% PlotMyFormat('Compress',...
-%     '','$F(\gamma(t))$','','','','');
-% xticks([0 1]);
-% plot(time, fsource,'k');
-% plot(time, fwarped(:,1),'r');
-%
-%
-% posgam = [0.26 0.15 0.1 0.4];
-% sp.gam(2) = subplot('Position',posgam); hold on; box on;
-% xlabel('$t$','interpreter','latex');
-% ylim([0 1.2]);
-% xticks([0 1]);yticks ([0 1.2]); %xticklabels({'0','0.8'});
-% plot(time, gamm(:,2),'r');
-%
-% poswarped = [0.26 0.65 0.1 0.24];
-% sp.warped(2) = subplot('Position',poswarped); hold on;
-% sp.warped(2).YLabel.Interpreter = 'latex';
-% PlotMyFormat('Stretch',...
-%     '','','','','','');
-% xticks([0 1]);
-% plot(time, fsource,'k');
-% plot(time, fwarped(:,2),'r');
-
-% Older version, only warping function and result
-if 0
-    posgam = [0.0 0.15 0.1 0.4];
-    poswarped = [0.0 0.65 0.1 0.24];
-    
-    % all other warps. [0,1] -> [0,1];
-    
-    for i = 3:size(gamm,2)
-        posgam = posgam + [0.13 0 0 0];
-        sp.gam(i) = subplot('Position',posgam); hold on; box on;
-        xlabel('$t$','interpreter','latex');
-        xticks([0 1]);yticks ([0 1]);
-        if i == 3, ylabel('\gamma','interpreter','tex'); end
-        plot(time, gamm(:,i),'r');
-        plot(time, time, '--k','LineWidth',1);
-        
-        poswarped = poswarped + [0.13 0 0 0];
-        sp.warped(i) = subplot('Position',poswarped); hold on;
-        if i == 3
-            sp.warped(i).YLabel.Interpreter = 'latex';
-            PlotMyFormat('',...
-                '','$F(\gamma(t))$','','','','');
-        else
-            PlotMyFormat('',...
-                '','','','','','');
-        end
-        xticks([0 1]);
-        plot(time, fsource,'k');
-        plot(time, fwarped(:,i),'r');
-    end
-end
-
-
-% Alternative: larger spacings. Additionally plot timeshift and timespeed
 
 if 1
     posgam = [0.0 0.15 0.1 0.3];
@@ -308,7 +252,6 @@ if 1
     
 end
 
-% Add one more alternative: integral and derivative above F(g(t))
 
 
 
@@ -323,17 +266,3 @@ end
 
 end
 
-
-
-function Pars = setParams1()
-%   MEAN PARAMS
-Pars = [4;... %A1
-    3;... %A2
-    0.16;... % B1 Full-width at half-maximum
-    0.16;... % B2
-    0.4;    % Delta-T time between the two peaks
-    0.3;... % Time of the first peak
-    0.00;... % Trim level - Imitating a real measurement, set onset and offset at this % of max. In ppt currently 0.02
-    0]; % Noise (or Spike) level - amplitude of sine noise as fraction of signal (multiplicative)
-% or amplitude of a Gaussian spike in percentage of Amax
-end

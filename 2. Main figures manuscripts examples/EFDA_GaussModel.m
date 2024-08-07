@@ -1,4 +1,26 @@
 function EFDA_GaussModel()
+% Generating and analyzing synthetic data for the Section 1 of the manuscript.
+% Triple-peaked Gaussian signal is used; Noise is added to every parameter (see options of
+% noise, the current selection adds noise to everything) generating N=500 signals. Each
+% signal is additionally trimmed at 2% of the maximum, imitating experimental measurement.
+
+% Three methods of resampling and alignment are used to extract continuous mean and SD
+% from that noisy ensemble: Time-Padding, Time-normalizing, and Time-Warping (via
+% simultaneous alignment via fda-srvf.fdawarp.time_warp
+
+% The results are plotted side by side to visually evaluate similarity between extracted
+% mean and the original noise-free signal. 
+% To quantify signal features, distribution of estimates from the noisy signals was used
+% as ground truth. Generally, the respective means are not equal to noise-free parameters
+% of the original signal, hence that signal is only plotted for a visual reference.
+% Errors of estimating the same features from the extracted mean are plotted with respect
+% to the ground truth.
+% Three variabilities are also extracted (only spatial variability for Time-Padding and
+% Time-normalizing). 
+
+% Aleksei Krotov
+% Northeastern University, 2024
+
 
 figpos0 = [0 0 0 0]; % Change the first argument(s) if not plotting on the main monitor
 %figpos0 = [-1920 0 0 0];
@@ -8,20 +30,12 @@ SampleRate = 300;
 N = 500; % noisy versions
 
 % See the bottom of the script file for my exploration of possible functions.
-% Old pseudo-skewed gaussian.
-%fH = @(tt,A,B,tC,a) A * exp(-(1/B.^2) * ((a * tt.^2 + (1-a) * tt - tC)).^2);
-
-% Two Gaussians
-% fH = @(tt,A1,A2,B1,B2,tC) A1 * exp(-4.*log(2) ./ (B1).^2 .* (tt-0.2).^2) +...
-%     A2 * exp(-4.*log(2) ./ (B2).^2 .* (tt-0.2-tC).^2);
-% fH = @(tt,Pars) Pars(1) * exp(-4.*log(2) ./ (Pars(3)).^2 .* (tt-Pars(6)).^2) +...
-%     Pars(2) * exp(-4.*log(2) ./ (Pars(4)).^2 .* (tt-Pars(6)-Pars(5)).^2);
 
 % Specifying T1 and T2
-fH = @(tt,Pars) Pars(1) * exp(-4.*log(2) ./ (Pars(3)).^2 .* (tt-Pars(5)).^2) +...
-    Pars(2) * exp(-4.*log(2) ./ (Pars(4)).^2 .* (tt-Pars(6)).^2);
+% fH = @(tt,Pars) Pars(1) * exp(-4.*log(2) ./ (Pars(3)).^2 .* (tt-Pars(5)).^2) +...
+%     Pars(2) * exp(-4.*log(2) ./ (Pars(4)).^2 .* (tt-Pars(6)).^2);
 
-% Add a small third peak?
+% Adding a small third peak, related to the second peak, for demonstration of small-feature-resolving.
 fH = @(tt,Pars) Pars(1) * exp(-4.*log(2) ./ (Pars(3)).^2 .* (tt-Pars(5)).^2) +...
     Pars(2) * exp(-4.*log(2) ./ (Pars(4)).^2 .* (tt-Pars(6)).^2) + ...
     Pars(2)/3 * exp(-4.*log(2) ./ (Pars(4)/5).^2 .* (tt-Pars(6)-Pars(4)/1.5).^2); % 1/8 of A2, 1/4 of W2, delayed wrt T2 by W2/4
@@ -39,7 +53,6 @@ rangeSet = {1};
 
 
 RndSeed = 1; % Using Twister rng with this seed. Set to "shuffle" to use current time.
-NoiseOption = 11;
 NoiseOption = 11;
 % 1-6 single param: Amps (1 and 2), Widths (1 and 2), Peak Times (1 and 2)
 % 7 Amps only

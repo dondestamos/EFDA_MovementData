@@ -67,7 +67,7 @@ end
 % (e.g. velocity and total distance travelled), this function will provide such
 % invariance: intervals with shortened duration will have proportionally higher amplitudes.
 if opts.PreserveIntegral 
-    if strcmpi(opts.EFDAWarps,'orig')
+    if strcmpi(opts.EFDAPreserving,'values')
         for irec = 1:size(efdaStruct.f,2)
             Result.FuncAligned(:,irec) = Result.FuncAligned(:,irec) .* Psis(:,irec).^2;
         end

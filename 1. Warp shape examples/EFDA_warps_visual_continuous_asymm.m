@@ -1,5 +1,20 @@
 function EFDA_warps_visual_continuous_asymm(varargin)
+% Demonstration of effect that a few examples of warping functions have on a
+% one-dimensional signal.
+% For generating warps, approach from Tucker 2014 (fdasrvf package) is used, although
+% re-written.
+% A combination of four parameters for the function genwarp was found empirically with
+% some, probably incomplete, understanding of the math behind generating a shooting vector for the warping
+% function. These parameters however show very specific effects on resulting warping
+% functions that I consider convenient for ever using generative statistics of warps.
 
+% The original signal is similar to the one in the manuscript, a two-peaked Gaussian. In
+% this function, only warping functions "asymmetric" w.r.t. the identity line (t=t) are
+% plotted, i.e. these warps are entirely below or above identity.
+% See also the _symm.m function for the warps which oscillate around identity. 
+
+% Aleksei Krotov
+% Northeastern University, 2024.
 
 CloseFig = any(strcmpi(varargin,'CloseFig'));
 SaveFig = any(strcmpi(varargin,'SaveFig'));
@@ -314,3 +329,5 @@ if CloseFig
 end
 
 end
+
+
