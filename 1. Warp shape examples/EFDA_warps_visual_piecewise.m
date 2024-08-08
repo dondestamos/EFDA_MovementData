@@ -1,15 +1,29 @@
 function EFDA_warps_visual_piecewise(varargin)
-% Demonstration of effect that a few examples of piecewise warping functions have on a
-% one-dimensional signal.
-% Warps are generated with three-to-four knots at predefined locations and piece-wise
-% linear segments between them.
-% This visualization helped me digest the concept of warping when I started studying this
-% approach.
+% This function demonstrates the effect of various piecewise linear warping 
+% functions on a one-dimensional signal. The warps are constructed using three 
+% to four knots positioned at predefined locations, with linear segments connecting 
+% them. This visualization approach aids in understanding the concept of warping, 
+% particularly for those new to the technique. This technique is conceptually similar 
+% to piecewise time-normalization (see e.g. Helwig et al (2011) in J Biomech or 
+% Russo et al (2020) in Neuron), allowing manual selection of landmarks and 
+% avoiding non-linear time-warping, but producing discontinuities. 
 
-% The original signal is similar to the one in the manuscript, a two-peaked Gaussian. In
-% this function, only warping functions "symmetric" w.r.t. the identity line (t=t) are
-% plotted, i.e. these warps oscillate around identity. 
-% See also the _continuous_asymm.m and _continuous_symm.m functions for the continuous warps
+% varargin (optional):
+% 'CloseFig': Closes the figure window before plotting (default: false).
+% 'SaveFig': Saves the generated figure (default: false).
+
+% Output (figure)
+% The original two-peaked Gaussian signal.
+% The warping functions for each case (except for compression and stretching, which are visualized through interpolation).
+% The warped versions of the original signal.
+% The derivatives of the original and warped signals (for piecewise warps with internal time shifts).
+% The integrals of the original and warped signals (for piecewise warps with internal time shifts).
+% The timespeed (warping function derivative) and timeshift (warping function difference from identity) for each case with internal time shifts.
+
+
+% The original signal is a bimodal Gaussian distribution with user-defined parameters for the means and standard deviation.
+% The warping functions are constructed with predefined knot positions and linear interpolation between them. Parameters for the slopes and intercepts of each linear segment are specified within the function.
+% The function includes examples of warps that compress, stretch, and introduce localized time shifts within the signal.
 
 % Aleksei Krotov
 % Northeastern University, 2024.

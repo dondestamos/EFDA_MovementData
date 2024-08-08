@@ -1,22 +1,47 @@
 function EFDA_GaussModel()
-% Generating and analyzing synthetic data for the Section 1 of the manuscript.
-% Triple-peaked Gaussian signal is used; Noise is added to every parameter (see options of
-% noise, the current selection adds noise to everything) generating N=500 signals. Each
-% signal is additionally trimmed at 2% of the maximum, imitating experimental measurement.
+% A comprehensive tool for generating and analyzing synthetic data to evaluate 
+% the performance of different signal processing methods, specifically alignment 
+% and resampling techniques to extract meaningful information from noisy data. 
+% A triple-Gaussian signal is used as an example, with the peak parameters specified 
+% in the second sub-function, and optional noise values (also a Gaussian noise, 
+% added to one or few of the parameters) are specified in the third sub-function. 
+% This function was used for the submitted manuscript by Krotov, S. Razavian, Sadeghi, and Sternad (2024).
 
-% Three methods of resampling and alignment are used to extract continuous mean and SD
-% from that noisy ensemble: Time-Padding, Time-normalizing, and Time-Warping (via
-% simultaneous alignment via fda-srvf.fdawarp.time_warp
+% 1) N (default 500) noisy realizations of the original triple-Gaussian signal 
+% are generated; Each signal is trimmed with on/offset at 2% of the signal’s maximum 
+% imitating an experimental measurement. Peaks are found and characterized (peak value, 
+% peak location, peak width at half-maximum). 
 
-% The results are plotted side by side to visually evaluate similarity between extracted
-% mean and the original noise-free signal. 
-% To quantify signal features, distribution of estimates from the noisy signals was used
-% as ground truth. Generally, the respective means are not equal to noise-free parameters
-% of the original signal, hence that signal is only plotted for a visual reference.
-% Errors of estimating the same features from the extracted mean are plotted with respect
-% to the ground truth.
-% Three variabilities are also extracted (only spatial variability for Time-Padding and
-% Time-normalizing). 
+% 2) Three approaches are then used on the whole ensemble to extract time-series 
+% of mean and standard deviation. Time-padding approach aligns all the signals at 
+% their start (trimmed onset) and pads all but the longest signal with NaNs. 
+% Time-normalizing approach resamples all signals to the same number of samples, 
+% effectively rescaling time to a relative scale. Time-warping approach performs 
+% similar time-normalization, and then performs simultaneous time-warping alignment 
+% via fdasrvf.time_warp method by Tucker (2014). 
+
+% 3) After each of the three approaches, mean and SD are extracted. The results 
+% are displayed. Peaks are identified and characterized. Their properties are compared 
+% against “ground truth” obtained from the distributions from (1). These distributions 
+% and the estimate after alignment are displayed as histograms. The resulting 
+% differences (errors of estimation from the mean) are additionally displayed as 
+% horizontal and vertical barcharts. 
+
+% 4) For the time-warping approach, estimated warping functions are plotted, 
+% against with “TimeShift” where identity was subtracted, and “TimeSpeed”, a derivative 
+% of warping function. Additionally, the extracted mean warped with every warping 
+% function is plotted as another ensemble demonstrating contribution of the 
+% temporal (warp-exposed) variability to the “spatial”, signal domain. 
+
+% 5) Variabilities are displayed as RMSE across aligned ensembles from (2), 
+% with additional temporal and temporal-to-spatial components from the time-warping approach.
+
+
+% Explore the NoiseOption parameter and combinations of noise imposed on the noisy signal ensemble.
+
+% Explore the rangeSet parameter to scale the amount of corresponding noise imposed and 
+% relate that noise to post-alignment parameter estimation error and variabilities.
+
 
 % Aleksei Krotov
 % Northeastern University, 2024

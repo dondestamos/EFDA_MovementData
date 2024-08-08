@@ -1,53 +1,49 @@
 function [opts, EFDAResult] = EFDA_alignmentPublishing(X,varargin)
 
-% Default parameters are below. Pass adjustments as a second-argument structure or, for
-% binary flags, 
-% optsDef.EFDAQuick = 0;
-% optsDef.EFDAGraphics = 1;
-% optsDef.Gui = 0;
-% optsDef.PreserveIntegral = 0; % Experimental. After alignment, rescale amplitude of the signals to keep area under it invariant. Computed in EFDA_PrepareResults, may require heavier filtering or using larger Lambda.
-% optsDef.TimeStampsSupplied = 1;
-% optsDef.FSResampleTarget = 20; % [Hz] if time is in seconds; [1/timeunit] if otherwise (e.g. milliseconds or days or arclength-meters), about 1/2 of the resampling frequency in the longest signal, consider Nyquist for estimation.
-% optsDef.NSamplesTarget = nan;
-% optsDef.RemoveLongOutliers = 1; % Remove trials which are longer/shorter than Mean+3SD of durations.
-% optsDef.FSFFTUse = 0;
-% optsDef.FSFFTCutoffPower = 0.95;
-% optsDef.Filter = []; % {'Butter',ORDER [4],CUTOFF FREQ HZ [10]} OR {'SavGol',ORDER [3],FRAME LENGTH [5]}
-% optsDef.Quiet = 0;
-% 
-% optsDef.EFDAMethod = 'DP'; % This script was tested only for DP, but the others from the fdasrsf library might work as well.
-% optsDef.EFDALambda = 0.01; % Warp roughness penalty. Set 0 to match the math most rigorously. Set 0.001-0.05 for smoother warps.
-% optsDef.EFDAParallel = 1;
-% optsDef.EFDAPreserving = 'values'; % Experimental. Can 'derivative', or 'integral', of the original signals to obtain warps. The rest of computation is still done on the original signal.
-% optsDef.EFDAMaxIter = 2; % In my experience, the result does not change after 1-2 iterations.
-% optsDef.EFDAWarpsWithDurs = 0; % Resample normalized time to match the mean duration.
-% optsDef.MaxNanInterp = 0.1; % Completely ignore (and turn into nans) the time-series which have more than this fraction of nans. Otherwise, these nans will be interpolated (interp1, 'makima').
-% optsDef.NSampPlot = 150; % TBD
-% optsDef.NLinesPlotMax = 90; % 0 is all;  too large NSamp and NLines would prevent from exporting plot as vector.
-% optsDef.EstimateExecutionTime = 1; % Pick 
+% Performs time-warping alignment of multiple time series using the time-warping alignment (EFDA) algorithm.
+% It offers various options for preprocessing, alignment, and post-processing, 
+% including filtering, resampling, outlier removal, and visualization.
+
+% Inputs
+% X: A cell array of time series data. Each cell contains a Tx2 or Tx1 matrix, where 
+% T is the number of time points and the second column (if present) represents the time stamps.
+% varargin: Optional input arguments for specifying function parameters. Can be 
+% passed as a structure or as individual arguments.
+
+% Outputs
+% EFDAResult: A structure containing the alignment results, including warped time series, 
+% warping functions, and other relevant information.
+% opts: the options structure detailing customizable options. (if no opts or keywords
+% supplied, use that output to see the default settings).
+
+% opts: A structure containing the function parameters and their values.
+% Pass binary-flag options as keywords or pass any setting in second-argument structure opts.
+    % EFDAQuick: If set to 1, performs alignment on a subset of the data, while also
+    % downsampling it, to estimate the emerging mean; Then the remaining warping functions
+    % are found. Expected time on a single thread 2 seconds. Use for large datasets where
+    % M * N^2 > 10^6, for M signals of N samples.
+    % EFDAGraphics: If set to 1, visualizes results. Default: 1.
+    % PreserveIntegral: If set to 1, rescales aligned signals to preserve the integral. Experimental. Default: 0.
+    % FSResampleTarget: Target sampling frequency for resampling. Default: 20 Hz.
+    % NSamplesTarget: Target number of samples for resampling (overrides FSResampleTarget). Default: NaN.
+    % RemoveLongOutliers: If set to 1, removes trials with duration significantly different from the mean. Default: 1.
+    % Filter: Specifies the filter type (e.g., 'Butter', 'SavGol') and parameters. Default: empty.
+    % Quiet: If set to 1, suppresses output messages and graphics. Default: 0.
+    % EFDAMethod: EFDA method to use (e.g., 'DP'). Default: 'DP'.
+    % EFDALambda: Warp roughness penalty for EFDA. Default: 0.01.
+    % EFDAParallel: If set to 1, uses parallel computation. Default: 1.
+    % EFDAPreserving: Specifies whether to preserve values, derivatives, or integrals during warping. Experimental. Default: 'values'.
+    % EFDAMaxIter: Maximum number of EFDA iterations. Default: 2.
+    % EFDAWarpsWithDurs: If set to 1, resamples normalized time to match the mean duration. Default: 0.
+    % MaxNanInterp: Maximum fraction of NaN values allowed for interpolation. Default: 0.1 (10%) per signal
+    % NSampPlot: Number of samples to plot. Default: 150.
+    % NLinesPlotMax: Maximum number of lines to plot. Default: 90.
+    % EstimateExecutionTime: If set to 1, estimates the execution time of EFDA. Default: 1.
+
 
 % Aleksei Krotov
 % Northeastern University
 % 2024
-
-
-
-% Check deriv/integral functionality
-
-
-
-
-
-% !! Integral/Derivative. Don't use der/int just for finding warps.
-% Instead use them to find warps and warped fns, then differentiate/integrate those fns,
-% then calculate the rest on them.
-
-
-% In case the input data doesn't have timestamps, but, for resampling and time-normalizing
-% (mandatory prior to EFDA) you want to specify a target number of samples, 
-% use option NSamplesTarget.
-
-
 
 
 %% Parse inputs

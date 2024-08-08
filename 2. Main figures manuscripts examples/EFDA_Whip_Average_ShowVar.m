@@ -1,14 +1,22 @@
 function EFDA_Whip_Average_ShowVar(data,SubjType,AverMethod)
-% Usage example:
-% EFDA_WhipAverage_ShowVar(EFDA_WhipData,'Novice','TimeNorm');
 
-% Using pre-arranged experimental data of hand speed of two participants, to align the
-% time-series in one of four fashions (see AverMethods), extract the mean and SD, compare
-% estimates of peak hand speed extracted from the mean vs. the mean of per-trial
-% estimates, and display spatial and temporal (only for EFDA) variabilities.
+% Processes and analyzes hand speed data from a motor neuroscience experiment of 
+% hitting a target with the bullwhip (Krotov & Russo 2022 in RSOS and 
+% Henrot B.S. MIT Thesis 2018). It takes experimental data provided along, 
+% a subject type (Novice or Expert), and an averaging method as input. The 
+% function aligns time-series data using one of four methods 
+% (TimePadLeft, TimePadRight, TimeNorm, EFDA), calculates mean and standard deviation,
+% compares peak hand speed estimates, and visualizes spatial and temporal variability.
 
-% For data descriptuion see the current paper (Krotov et al. 2024). For more details on the data, see
-% Krotov & Russo (2022) in Royal Society Open Science and the B.S. thesis by C. Henrot at MIT (2016)
+% Change Nresamp to a lower of a higher value to specifically monitor the effect 
+% of sampling rate to time-warping alignment
+
+% Toggle the flag PreserveIntegral for preserving the total distance travelled 
+% (the original signals are speed).
+
+% Toggle flag NormByPeakHS for further reducing amplitude differences between the subjects.
+
+% For data descriptuion see the current paper (Krotov, S Razavian, Sadeghi, and Sternad 2024).
 
 % Aleksei Krotov, Northeastern University, 2024
 

@@ -24,8 +24,7 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
     end
 
     
-    % Now I have the full-blown version working. For the quick one, perform alignment on
-    % whatever Func2Align - only to find the mean - then compute remaining warps to that mean.
+    % perform alignment on whatever Func2Align - only to find the mean - then compute remaining warps to that mean.
 
     % Then, just copy the approach from the full version in case of derivative and
     % integral
@@ -36,11 +35,7 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
     N = size(FuncOrig,1);
     M = size(FuncOrig,2);
 
-    % is it sufficient to just decrease NSamples to 20? 20 provides relatively smooth
-    % curve in a regular 
-    %t20 = tFull ./ N^2 .* 20.^2;
-
-    % So to decrease time to 1 seconds, take between 3 to M functions, resampled to 20
+    % To decrease time to 1 seconds, take between 3 to M functions, resampled to 20
     % to NFramesTarget frames.
     MinS = [20 3];
     %mintime = tFull ./ N^2 ./ M .* MinS(1).^2 .* MinS(2);
@@ -48,7 +43,6 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
     % To estimate EFDA mean from them. Then find optimum warps for the rest (M-m)
     % downsampled functions. Then upsample everything back to N.
 
-    
     % How to choose n and m?
     % While keeping one-thread time under 1 s, maximize such a combination of n and m that each of
     % them is as high ratio of [N M] as possible. Empirically, the expression of "scale"

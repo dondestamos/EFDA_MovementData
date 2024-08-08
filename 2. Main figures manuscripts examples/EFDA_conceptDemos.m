@@ -1,15 +1,22 @@
 function EFDA_conceptDemos()
-% Demonstration of elastic alignment (efda) using time-warping.
-% Methods from fdasrvf by J. Tucker (2014) are used. 
-% With current settings, two arbitrary signals (double-Gaussians) are aligned 1->2 or 2->1
-% or both aligned to an emerging mean. Various distances are computed and displayed
-% showing the invariance of Fisher-Rao distance to warping and allowing for a "good"
-% alignment.
-% Toggle flag_ShowSRRF to plot square-root-rate transformations of the signals instead.
-% Toggle EmulateL2 to imitate using L2-metric on the original signals.
-% Togghe EmulateDTW to show results of matlab-default DTW algorithm for alignment
-% Uncomment the section "Simultaneous warping" to see further demo of how the FR distance
-% metric is invariant to simultaneous warping.
+% Generates two double-Gaussian signals and demonstrates time-warping alignment using 
+% the toolbox fdasrvf of Srivastava, Tucker and others. Displays the original signals, 
+% and produces three automatic alignments, where one signal is aligned to the other one, 
+% or both signals are aligned to an emerging Karcher mean. Displays Euclidean and 
+% Fisher-Rao distances, the latter also for the warping functions, between the signals 
+% before and after alignment. This function was used for the images in the manuscript 
+% submitted by Krotov, S. Razavian, Sadeghi, and Sternad.
+
+% Use the flag ShowSRRF to plot SRRF instead of the original signals and observe 
+% their change in both amplitude and temporal domains when the original signal is warped.
+
+% Use the flag EmulateL2 to use EFDA alignment as if L2-distance between the 
+% original signals was minimized, instead of Fisher-Rao distance.
+
+% Use the flag EmulateDTW to use MATLAB’s function dtw to align the signals, which 
+% likely results in strong discontinuities after warping.
+
+% Aleksei Krotov, Northeastern University, 2024
 
 
 figpos0 = [0 0 0 0]; % Change if plotting not on the main monitor

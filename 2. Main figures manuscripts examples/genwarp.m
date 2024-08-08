@@ -25,7 +25,7 @@ function [psii, gam, shvec] = genwarp(A,f,time,varargin)
 
 
 % see examples in EFDA_warps_visual_continuous_asymm('NoClose','NoSave')
-% and EFDA_warps_visual_continuous_symmetric('NoClose','NoSave')
+% and EFDA_warps_visual_continuous_symm('NoClose','NoSave')
 
 % Aleksei Krotov
 % Northeastern University
@@ -73,3 +73,4 @@ gam = (gam - gam(1)) ./ (gam(end) - gam(1));
 
 
 end
+
