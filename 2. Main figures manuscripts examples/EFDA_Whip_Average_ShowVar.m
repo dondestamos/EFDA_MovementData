@@ -22,7 +22,7 @@ function EFDA_Whip_Average_ShowVar(data,SubjType,AverMethod)
 
 
 AverMethods = {'TimePadLeft','TimePadRight','TimeNorm','EFDA'};
-assert(any(strcmpi(SubjType,{'Novice','Expert'})),'The second argument must be "Novice" or "Expert"');
+assert(any(strcmpi(SubjType,{'Novice1','Novice2','Expert'})),'The second argument must be "Novice1", "Novice2", or "Expert"');
 assert(any(strcmpi(AverMethod,AverMethods)),'The third argument must be "TimePadLeft", "TimePadRight", "TimeNorm", or "EFDA"');
 Cols = [0.7451 0.333 0.5882; 0.64 0.73 0.35; 0.2392 0.5098 0.6941; 0.9961 0.3451 0.0824];
 indMethod = find(strcmpi(AverMethod,AverMethods));
@@ -66,7 +66,7 @@ irow = istyle;
             itrial = ind(iitrial);
             SampleRate = data(itrial).SampleRate;
 
-            if strcmpi(SubjType,'Novice')
+            if any(strcmpi(SubjType,{'Novice1','Novice2'}))
                 HVel = data(itrial).HandVel;
                 HS = sqrt(sum(HVel.^2,2));
             else
