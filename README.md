@@ -3,11 +3,20 @@ A lightweight mex-precompiled Matlab libraries demonstrating and extending two "
 Submitted with manuscript Krotov, S. Razavian, Sadeghi, and Sternad
 "Time-Warping to Extract Salient Features and Decouple Spatial and Temporal Variability in Biological Signals – A Tutorial Review with Application to Human Movement Data"
 
+
+Demo of the problem of confounded variability estimates in time series and introduction of time-warping alignment.
+
 ![Figure 1 - Problem, TW, Variabilities](https://github.com/user-attachments/assets/a8cfe9a6-15b8-482e-99b9-cc123c5e8b25)
+
+A synthetic dataset with controlled noise. Only time-warping alignment allows accurately estimating parameters of the original signal template after extracting mean from the ensemble.
 
 ![Figure 3 - results synthetic estimates demo](https://github.com/user-attachments/assets/98b31501-1f7c-47af-8a6b-ff7f9d08710d)
 
+Decoupled variabilities via time-warping alignment. Interpretation is research-specific.
+
 ![Figure 4 - Synthetic Variabilities Horiz](https://github.com/user-attachments/assets/d3773c36-f3a4-4c68-b45d-612e8213ce74)
+
+Demonstration of alignment and possible intepretations of decoupled variability on motor neuroscience experimental data.
 
 ![Figure 5 - whip task methods](https://github.com/user-attachments/assets/64e03dd5-5c30-4e67-b998-bdafa5abce52)
 
