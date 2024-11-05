@@ -1,5 +1,5 @@
 # EFDA_MovementData
-A lightweight mex-precompiled Matlab libraries demonstrating and extending two "fdasrvf" (https://github.com/jdtuck/fdasrvf_MATLAB) functions for elastic alignment of biological movement signals. 
+A lightweight mex-precompiled Matlab libraries demonstrating and extending two "fdasrvf" (https://github.com/jdtuck/fdasrvf_MATLAB) functions for elastic alignment of biological movement signals. Ready to run on most Windows 10/11 machines.
 Submitted with manuscript Krotov, S. Razavian, Sadeghi, and Sternad
 "Time-Warping to Extract Salient Features and Decouple Spatial and Temporal Variability in Biological Signals – A Tutorial Review with Application to Human Movement Data"
 
@@ -26,7 +26,9 @@ Features:
    - result object fields named in a user-friendlier way
 
 See the functions from folders (1.) and (2.) for more description.
+
 Dependencies are included here from the full library "fdasrvf" (https://github.com/jdtuck/fdasrvf_MATLAB), with edits only in the fdawarp.time_warping class/method adding history of iterations and additional variability definitions to the output structure. 
+
 Mex-files were precompiled on 64-bit Windows 10 and are expected to run straight ahead on most of the modern Windows platforms. For other platforms, use the original library and implement changes from here manually, if needed.
 
 
