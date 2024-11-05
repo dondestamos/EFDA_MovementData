@@ -18,7 +18,7 @@ if nargin < 4
 end
 
 if spline
-    fo = interp1My(t, f, (t(end)-t(1)).*gamma + t(1), 'makima')';
+    fo = interp1(t, f, (t(end)-t(1)).*gamma + t(1), 'makima')';
 else
-    fo = interp1My(t, f, (t(end)-t(1)).*gamma + t(1))';
+    fo = interp1(t, f, (t(end)-t(1)).*gamma + t(1))';
 end

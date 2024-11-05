@@ -13,15 +13,9 @@ Result.FuncOrig = efdaStruct.f;
 Result.FuncAligned = efdaStruct.fn;
 Result.FuncAlignedMean = mean(efdaStruct.fn,2,'omitnan');
 Result.FuncAlignedStd = std(efdaStruct.fn,[],2,'omitnan');
-%Result.
-SRRFOrig = efdaStruct.q0; % Represent original SRRFs only if not aligning by derivatives or by integrals
-%Result.
-SRRFAligned = efdaStruct.qn; % Represent aligned SRRFs only if not aligning by derivatives or by integrals
-
 Result.Warps = efdaStruct.gam;
-%Result.
 Psis = efdaStruct.psi;
-% Plus compute "Time Speed" and "Time Shift"
+% Compute additionally "Time Speed" and "Time Shift"
 Result.WarpsDdt = mydiff(efdaStruct.time,efdaStruct.gam); % derivative via central differences
 Result.WarpsMinusUnity = efdaStruct.gam - linspace(efdaStruct.gam(1),efdaStruct.gam(end),L)';
 
@@ -38,19 +32,17 @@ Result.FullDist = efdaStruct.FullDist; % distances to the mean in terms of origi
 Result.ElasticSpatDist = efdaStruct.ElasticAmpDist; % in terms of SRVF of F. Only valid when 'orig' functions are aligned, not derivative or integral
 Result.ElasticPhDist = efdaStruct.ElasticPhDist; % in terms of SRVF of gammas. Only valid when 'orig' functions are aligned, not derivative or integral
 
-% Elastic distances computed in the original method - I added it to the fdasrvf.timewarping,
+% Elastic distances are computed in the original method - I added it to the fdasrvf.timewarping,
 % following the papers and the Srivastava's book.
 % obj.ElasticAmpDist(ii) = sqrt(trapz(obj.time,(obj.mqn - obj.qn(:,ii)).^2));
 % obj.ElasticPhDist(ii) = acos(trapz(obj.time,obj.psi(:,ii)));
 
-% ADDING VARIABILITY METRICS - four different definitions to examine them.
 
-%% An experimental feature: consider representing uniform scaling (time-norm) together with non-uniform scaling (time-warping)
+%% A new feature: representing uniform scaling (time-norm) together with non-uniform scaling (time-warping)
 % Time-warping results might become more interpretable, as all temporal scaling would be
 % expressed in original time units. Furthermore, a landmark of interest in the aligned
 % mean can be matched to the respective times of that landmark in the original ensemble.
-
-% Careful, the variabilities may change too.
+% Use caution, variabilities may change too.
 
 if opts.EFDAWarpsWithDurs
     Result.TimeMean = Result.TimeMean .* mean(Result.DurationsOrig,'omitnan');
@@ -83,28 +75,33 @@ end
 
 
 
+%% Variability
 
-%% LEAVE ONLY ONE VARIABILITY METRIC
-%%
-% Different ways to express variabilities.
+% Variabilities are computed over original time-normalize signals, aligned signals, warp
+% functions, and aligned-mean-warped signals. 
+
 [VarsOrig, VarNames] = Variabilities_EFDA(Result.FuncOrig, Result.TimeMean);
 VarsAligned = Variabilities_EFDA(Result.FuncAligned, Result.TimeMean);
 VarsTShift = Variabilities_EFDA(Result.Warps, Result.TimeMean); % Same ass WarpsMinusUnity
 VarsAlignedMeanWarped = Variabilities_EFDA(Result.FuncMeanWarped, Result.TimeMean);
 
+% There are 4 variabilities returned by Variabilities_EFDA, with slightly different formal definitions. 
 % Selected variability definition for ensemble of functions f [T x N] is 
-% trapz(timemean,std(f)) ./ timemean(end);
-
+% trapz(timemean,std(f)) ./ timemean(end); as it is the most intuitive to non-mathematicians.
 % Expressing variability as the area of the SD(t) band (one-sided). Normalizing by average duration,
-% in case opts.EFDAWarpsWithDurs is True.
-% Assuming this will be the main, most intuitive, definition
+% in case opts.EFDAWarpsWithDurs is True; otherwise duration is [0 1] already
 Result.VarOrigSpat = VarsOrig(2);
 Result.VarSpat = VarsAligned(2);
 Result.VarTemp = VarsTShift(2);
 Result.VarTemp2Spat = VarsAlignedMeanWarped(2);
 
 
-% AGAIN ATTEMPT Kneip&RAMSAY (2008) or actually Ramsay Hooker Graves (2009)
+% Estimate MSEs total, amplitude, and phase per Kneip&RAMSAY (2008) and Ramsay Hooker Graves (2009)
+% These are saved, but not used in the manuscript. Ramsay's studies made it look like
+% MSETot = MSEAmp + MSEPh, which would be a wonderful property of decoupling variabilities.
+% But it was never formally proven and I could not see that with the following
+% definitions.
+
 N = size(efdaStruct.f,2);
 x = Result.FuncOrig;
 xhat = mean(Result.FuncOrig,2,'omitnan');
@@ -124,37 +121,9 @@ Result.MSETot = MSETot;
 Result.MSEAmp = MSEAmp;
 Result.MSEPh = MSEPh;
 
-% % The next one is From Kneip & Ramsay (2008) Combining Registration and fitting....
-% % determining independence of aligned functions and gammas.
-% % It might remain unused.
-% % Why are these two definitions produce different numeric results? Verify.....
-% C1 = mean(trapz(Result.FuncOrig.^2)) ./ mean(trapz(Result.FuncAligned.^2));
-% C2 = mean(trapz(Result.WarpsDdt .* Result.FuncAligned.^2)) ./ mean(trapz(Result.FuncAligned.^2));
-% C = C1;
-% Result.VarAmpMSEw = C * mean(trapz((Result.FuncAligned - Result.FuncAlignedMean).^2)./L);
-% %C = mean(trapz(Result.WarpsDdt .* Result.FuncAligned.^2)) ./ mean(trapz(Result.FuncAligned.^2));
-% %Result.VarAmpMSEw = C * trapz(Result.VarAmpF); Slightly different from the below
-% MSTotal = mean(trapz((Result.FuncOrig - mean(Result.FuncOrig)).^2) ./ L);
-%
-%
-% %%
-% %%%%%% Careful here, verify expressions for variance and order of operations!
-% % Check with Kneip&Ramsay; Check with Srivastava book too;
-% %%
-%
-%
-% % The next one is also from Kneip & Ramsay (2008). Weighted.
-% % Supposedly, VarOrigAmpF = VarAmpMSEw + VarTempMSEw
-% Result.VarTempMSEw = C * trapz(Result.FuncAlignedMean.^2) ./ L - trapz(mean(Result.FuncOrig,2,'omitnan')) ./ L;
-%
-% % From Srivastava: variance across the mean-aligned warped with all warps.
-% Result.VarTempMSESri = trapz(Result.FuncMeanWarpedStd.^2) ./ L;%; ./ mean(durations);
-%
-% Result.VarTempTimeSpeed = trapz(var(Result.WarpsDdt,[],2)) ./ L; % ./ mean(durations);
-% Result.VarTempTimeShift = trapz(var(Result.WarpsMinusUnity,[],2)) ./ L; % ./ mean(durations);
 
 
-
+% Add auxilliary fields to the output.
 Result.NannedTrials = nanlist;
 Result.IterCostFn = efdaStruct.qun;
 Result.lambda = efdaStruct.lambda;
@@ -220,20 +189,25 @@ for irec = 1:size(Result.FuncOrig,2)
         Result.WarpsDdt(nanlocs{irec},irec) = nan;
         Result.WarpsMinusUnity(nanlocs{irec},irec) = nan;
         Result.FuncMeanWarped(nanlocs{irec},irec) = nan;
-        
         %error('EFDA_PrepareResult::Replace nans if any');
     end
 end
-% y1(inannew1,:) = nan;
 
 
 end
+
+
+
+
 
 
 
 
 
 function [Vars, VarNames] = Variabilities_EFDA(F, t)
+% Four methods of computing variabilities. Conceptually very similar - some quantification
+% of "area of SD", numerically some of them are very similar as well, but formally they're
+% all different. 
 % units of F for example [m] and normalized time is [a.u.]
 VarNames = {'Area of Var(t)','Area of SD(t)','MSE of L2-distances to the mean','RMSE of L2-distances to the mean'};
 

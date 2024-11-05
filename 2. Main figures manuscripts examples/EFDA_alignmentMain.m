@@ -1,4 +1,4 @@
-function [opts, EFDAResult] = EFDA_alignmentPublishing(X,varargin)
+function [opts, EFDAResult] = EFDA_alignmentMain(X,varargin)
 
 % Performs time-warping alignment of multiple time series using the time-warping alignment (EFDA) algorithm.
 % It offers various options for preprocessing, alignment, and post-processing, 
@@ -63,21 +63,16 @@ function [opts, EFDAResult] = EFDA_alignmentPublishing(X,varargin)
 % opts.EstimateExecutionTime = 0;
 
 
-% 
-% opts = EFDA_ParseOpts(opts,varargin{:});
-
-
 % Return default vars values
 if nargout == 1
     return
 end
 
+% Setup graphics, if any
 figpos0 = [0 0 0 0]; % change if plotting not on the main monitor 
 figpos = [100 200 1280 720] + figpos0;
 figname = 'Time-warping alignment';
 
-% Check that input is cell!
-% Check that each cell is an Nx2 column
 
 %% Determine sampling rate (if FFT), determine Nresamp, check for nans, time-normalize
 if iscell(X) % cell where y{i} = two-column vector of time and value
@@ -85,6 +80,7 @@ if iscell(X) % cell where y{i} = two-column vector of time and value
 else
     error('Input is not cell');
 end
+
 opts.nanTriallist = nanTriallist;
 opts.Ntrials = Ntrials;
 opts.DurMean = mean(dur,'omitnan');
@@ -96,8 +92,9 @@ if opts.EstimateExecutionTime || opts.EFDAQuick
     EFDA_tEst_1thread = EstimateEFDATime(ynorm,opts);
     opts.EFDA_tEst_1thread = EFDA_tEst_1thread;
     if EFDA_tEst_1thread < 1
-        fprintf('<strong>Single-core execution is already faster than 1 s, removing the QuickEFDA flag</strong>n');
+        fprintf('<strong>Single-core execution is already faster than 1 s for this job, disabling the QuickEFDA and EFDAParallel flags</strong>n');
         opts.EFDAQuick = 0;
+        opts.EFDAParallel = 0;
     end
 end
 
@@ -105,9 +102,10 @@ end
 if opts.EFDAGraphics
     EFDAFig = EFDA_PlotInput(ynorm,tnorm./tnorm(end),dur,opts,[],figname,figpos);
 end
-%% Consider filtering before EFDA
 
-% function filter data EFDA
+
+
+%% Optionally filter before EFDA
 
 if ~isempty(opts.Filter)
     switch opts.Filter{1}
@@ -122,15 +120,13 @@ if ~isempty(opts.Filter)
             FilterParams.Order = opts.Filter{2};
             FilterParams.FCutoff = opts.Filter{3};
             ynormF = EFDA_LowFilt(ynorm,FSorig,FilterParams,opts);
-            % downsample again?
-            %[ynorm,tnorm,dur,FSorig,[],[],nanTriallist] = TimeNormSeries(X,vars);
         case 'SavGol'
             FilterParams.Type = 'SavGol';
             FilterParams.Order = opts.Filter{2};
             FilterParams.FrameLength = opts.Filter{3};
             ynormF = EFDA_LowFilt(ynorm,FSorig,FilterParams);
         otherwise
-            warning('Filter input not formatted properly. Skipping the filtering');
+            warning('Filter input not formatted properly. Skipping filtering');
     end
     ynorm = ynormF;
 end
@@ -143,7 +139,7 @@ efdaResult = EFDA_align(ynorm(:,trialnotnans),tnorm./tnorm(end),opts,nanlocs);
 efdaStruct = EFDA_fdawarp2struct(efdaResult);
 EFDAResult = EFDA_PrepareResults(dur(trialnotnans),efdaStruct,nanTriallist,opts,nanlocs);
 tEFDA1 = toc(tt1);
-disp(sprintf('Alignment time %.1f s',tEFDA1-tEFDA0));
+fprintf('EFDA has finished in %.1f s\n',tEFDA1-tEFDA0);
 opts.LastEFDAExecutionTime = tEFDA1 - tEFDA0;
 
 
@@ -173,9 +169,9 @@ end
 
 
 
-
+%%%%%%%%%%%%%%%
 %% Auxilliaries
-
+%%%%%%%%%%%%%%%
 function [X, opts] = ParseInput(X,varargin)
 
 N = nargin;
@@ -275,6 +271,12 @@ if ~isempty(varargin) && ~isempty(varargin{1,1})
 end
 
 end
+
+
+
+
+
+
 
 
 

@@ -42,9 +42,8 @@ function EFDA_GaussModel()
 % Explore the rangeSet parameter to scale the amount of corresponding noise imposed and 
 % relate that noise to post-alignment parameter estimation error and variabilities.
 
-
-% Aleksei Krotov
-% Northeastern University, 2024
+% For details see the current paper (Krotov, S Razavian, Sadeghi, and Sternad 2024).
+% Aleksei Krotov, Northeastern University, 2024
 
 
 figpos0 = [0 0 0 0]; % Change the first argument(s) if not plotting on the main monitor
@@ -844,7 +843,7 @@ opts.EFDALambda = 0.01;
 opts.EstimateExecutionTime = 1;
 opts.EFDAGraphics = 0;
 
-[~, ResultStruct] = EFDA_alignmentPublishing(y',opts);
+[~, ResultStruct] = EFDA_alignmentMain(y',opts);
 NSampEFDA = length(ResultStruct.TimeMean);
 
 

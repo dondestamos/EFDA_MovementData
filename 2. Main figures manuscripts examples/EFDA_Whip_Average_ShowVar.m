@@ -17,8 +17,8 @@ function EFDA_Whip_Average_ShowVar(data,SubjType,AverMethod)
 % Toggle flag NormByPeakHS for further reducing amplitude differences between the subjects.
 
 % For data descriptuion see the current paper (Krotov, S Razavian, Sadeghi, and Sternad 2024).
-
 % Aleksei Krotov, Northeastern University, 2024
+
 
 
 AverMethods = {'TimePadLeft','TimePadRight','TimeNorm','EFDA'};
@@ -110,7 +110,7 @@ irow = istyle;
         opts.EFDAGraphics = 0;
 
 
-        [opts, EFDAResult] = EFDA_alignmentPublishing(TSnew,opts);
+        [opts, EFDAResult] = EFDA_alignmentMain(TSnew,opts);
         TimeMean = EFDAResult.TimeMean;
         TSmean = EFDAResult.FuncAlignedMean;
         TSstd = EFDAResult.FuncAlignedStd;
@@ -125,8 +125,6 @@ irow = istyle;
             fprintf('<strong>EFDA TempVar includes varying durations and is in [s]!</strong> \n');
         end
 
-%         figure;
-%         plot(linspace(0,1,size(TSmean,1)),ResultStructs(irow).ResultStruct.Warps);
 
     end
     varmetrics.VarDur = std(dur,'omitnan');

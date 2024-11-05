@@ -1,5 +1,17 @@
 function objwarp = EFDA_align(FuncOrig,TimeOrig,opts,nanlocs)
 
+% A wrapper around just the following two lines
+% fobj = fdawarp(FuncOrig,TimeOrig);
+% fobj = fobj.time_warping;
+% which      
+%   - sets defaults excplicitly, 
+%   - has a EFDAQuick version to quickly approximate results on a large dataset, 
+%   - has an option to align derivative or integral of FuncOrig with the following integration or derivation respectively, and 
+%   - slightly re-organizes fields in the resulting object/structure.
+% Aleksei Krotov, 2024
+% Northeastern University
+
+
 option.parallel = opts.EFDAParallel; % turns on MATLAB parallel processing - speeds up a lot!
 option.closepool = 0; % determines whether to close matlabpool
 option.smooth = 0; % smooth data using standard box filter
@@ -14,7 +26,20 @@ option.IterationHistory_flag = 0; % turn on to examine all iterations (< MaxItr)
 option.Quiet = opts.Quiet;
 
 
+% Allows Quick version.
 if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
+    
+    % For a NxM ensemble (N timesamples, M signals), depending on N,M,target sample
+    % frequency if any etc, either the ensemble will be downsampled N->n, or only m<M of
+    % the functions will be used for computing the "mean" template, or both. After
+    % computing the mean template, all the warps will be computed, and the Result
+    % structure will look similar to normal, just with potentially reduced accuracy of the
+    % mean and potentially with low-pass filter effect (due to downsampling). Also a lower
+    % accuracy due to forcing MaxItr=1
+
+
+    % There is still an option, like in a full version, to align derivatives (with
+    % following integration) or align integrals (with following derivation)
     Func2Align = FuncOrig;
     if strcmpi(opts.EFDAPreserving,'derivative')
         Func2Align = mydiff(TimeOrig,FuncOrig,'NoReshape');
@@ -24,45 +49,45 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
     end
 
     
-    % perform alignment on whatever Func2Align - only to find the mean - then compute remaining warps to that mean.
-
-    % Then, just copy the approach from the full version in case of derivative and
-    % integral
 
 
-    % Computation burden
-    tFull = opts.EFDA_tEst_1thread; % = t_single_optimum_reparam .* (Niter + 2) .* N^2 * M
+    % Estimate computation burden
+    tFull = opts.EFDA_tEst_1thread; % = t_single_optimum_reparam .* (Niter + 2) .* N^2 * M, for M functions, N timesamples each
     N = size(FuncOrig,1);
     M = size(FuncOrig,2);
 
-    % To decrease time to 1 seconds, take between 3 to M functions, resampled to 20
-    % to NFramesTarget frames.
-    MinS = [20 3];
-    %mintime = tFull ./ N^2 ./ M .* MinS(1).^2 .* MinS(2);
-    % Choose MinS(1) < n < N of samples per function and select a subset of MinS(2) < m < M  functions
-    % To estimate EFDA mean from them. Then find optimum warps for the rest (M-m)
-    % downsampled functions. Then upsample everything back to N.
 
-    % How to choose n and m?
-    % While keeping one-thread time under 1 s, maximize such a combination of n and m that each of
-    % them is as high ratio of [N M] as possible. Empirically, the expression of "scale"
-    % below appears appropriate.
-    %time = nan(N,1);
-    scale = nan(N,1);
-    m = nan(N,1);
-    %n = nan(N,1);
-    for i = MinS(1):N
-        %n(i) = i;
-        m(i) = min([M floor((N^2 * M / tFull) ./ i.^2)]);
-        %time(i) = tFull ./ N^2 ./ M .* i.^2 .* m(i);
-        scale(i) = log(sum([N M] ./ [i.^0.75 m(i)]));
-    end
-    [~,n] = min(scale);
-    n = max([10 n]);
-    m = max([min([M floor((N^2 * M / tFull) ./ n.^2)]) 3]);
+
+    %%%%%%% FIGURING OUT DOWNSAMPLING AND SELECTING A SUBSAMPLE. Comments are narrative.
+        % To decrease time to 1 seconds, take between 3 to M functions, resampled to 20
+        % to NFramesTarget frames.
+        MinS = [20 3];
+        %mintime = tFull ./ N^2 ./ M .* MinS(1).^2 .* MinS(2);
+        % Choose MinS(1) < n < N of samples per function and select a subset of MinS(2) < m < M  functions
+        % To estimate EFDA mean from them. Then find optimum warps for the rest (M-m)
+        % downsampled functions. Then upsample everything back to N.
+    
+        % How to choose n and m?
+        % While keeping one-thread time under 1 s, maximize such a combination of n and m that each of
+        % them is as high ratio of [N M] as possible. Empirically, the expression of "scale"
+        % below appears appropriate.
+        %time = nan(N,1);
+        scale = nan(N,1);
+        m = nan(N,1);
+        %n = nan(N,1);
+        for i = MinS(1):N
+            %n(i) = i;
+            m(i) = min([M floor((N^2 * M / tFull) ./ i.^2)]);
+            %time(i) = tFull ./ N^2 ./ M .* i.^2 .* m(i);
+            scale(i) = log(sum([N M] ./ [i.^0.75 m(i)]));
+        end
+        [~,n] = min(scale);
+        n = max([10 n]);
+        m = max([min([M floor((N^2 * M / tFull) ./ n.^2)]) 3]);
+    %%%%%%%%
 
     NM = [length(TimeOrig) size(FuncOrig,2)];
-    Msubquick = m;%ceil(NM(2) .* 0.2);
+    Msubquick = m; 
     indsubquick = sort(unique(randperm(NM(2),Msubquick))); % A subsample of original functions
 
     NResampQuick = n;
@@ -83,7 +108,8 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
     option.MaxItr = 1;
     objwarp = objwarp.time_warping(opts.EFDALambda,option); % Alignment
 
-    % Then find alignment to that mean from all the original functions, same reduced number of samples
+    % Then recreate the complete objwarp object, take existing aliugnments from the above,
+    % and find alignment to that mean from the rest of the original functions, still at a reduced number of samples
     objwarp0.fmean = objwarp.fmean;
     objwarp0.mqn = objwarp.mqn;
     objwarp0.stats = objwarp.stats;
@@ -114,7 +140,7 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
         end
     end
     
-    % Then interpolate to original samples and we're done here.
+    % Then interpolate to original samples
     flds = {'f','fn','qn','q0','fmean','mqn','gam','psi','gamI'};
     for ifld = 1:length(flds)
         a = interp1(TimeQuick,objwarp0.(flds{ifld}),TimeOrig,'makima',nan);
@@ -122,13 +148,16 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
     end
     objwarp0.time = TimeOrig;
 
-    % Find the distances and stats
+
+
+    % Find the distances and stats - some are imported from the quick computation, the
+    % others are recomputed.
     isub = 1;
     for itrial = 1:M
         if ismember(itrial,indsubquick)
             objwarp0.FullDist(itrial) = objwarp.FullDist(isub);
             objwarp0.ElasticAmpDist(itrial) = objwarp.ElasticAmpDist(isub);
-            objwarp0.ElasticPhDist(itrial) = objwarp.ElasticPhDist(isub);
+            objwarp0.ElasticPhDist(itrial) = objwarp.ElasticPhDist(isub); % Check, this might be sensitive to number of samples!
             isub = isub + 1;
         else
             objwarp0.FullDist(itrial) = sqrt(trapz(objwarp0.time,(objwarp0.fn(:,itrial) - objwarp0.fmean).^2));
@@ -150,6 +179,7 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
 
     obj0 = fdawarp2struct(objwarp);
     objwarp = obj0;
+
 
 
     % Re-convert derivative/integral if needed
@@ -202,7 +232,8 @@ if opts.EFDAQuick % Aim for 1-2-second performance on a single-thread
 else
     Func2Align = FuncOrig;
     
-    % Use derivative or integral for alignment. Then, respectively, integrate or
+
+    % An option to use derivative or integral for alignment. Then, respectively, integrate or
     % differentiate. If the function is velocity, "integral" would preserve total distance
     % traveled, while "derivative" would preserve acceleration values. "Integral" is
     % expected to be less susceptible to noise, while "derivative" is expected to be more
@@ -212,13 +243,7 @@ else
     elseif strcmpi(opts.EFDAPreserving,'integral')
         Func2Align = cumtrapz(TimeOrig,FuncOrig);
     end
-    
-    % What to do with distance metrics, warps, etc.?
-    % Compute them manually and store in the main structure. 
-    % But create a substructure with all the info about actual aligned functions (der or
-    % int)
-
-
+        
     objwarp = fdawarp(Func2Align,TimeOrig); % Creating object
     objwarp = objwarp.time_warping(opts.EFDALambda,option); % Alignment
     
@@ -237,6 +262,11 @@ else
         objwarp.fmean = mydiff(TimeOrig,obj0.fmean);
         %objwarp.alignment = 'from the integral alignment';
     end
+
+    % In case of derivative/integral, the distance metrics, warps etc. 
+    % are computed manually and stored in the main structure. 
+    % There is also a substructure with the info about actually-aligned functions (such as
+    % derivatives or integrals)
     if any(strcmpi(opts.EFDAPreserving,{'derivative','integral'}))
         % recompute q0, qn, mqn, gam, psi, stats, Dist, gamI
         % zero qun

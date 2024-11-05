@@ -16,6 +16,7 @@ function EFDA_conceptDemos()
 % Use the flag EmulateDTW to use MATLAB’s function dtw to align the signals, which 
 % likely results in strong discontinuities after warping.
 
+% For details see the current paper (Krotov, S Razavian, Sadeghi, and Sternad 2024).
 % Aleksei Krotov, Northeastern University, 2024
 
 
@@ -322,7 +323,7 @@ opts.EFDAParallel = 1;
 opts.EstimateExecutionTime = 1;
 opts.EFDALambda = 0.01;
 opts.EFDAGraphics = 0;
-[opts, ResultStruct] = EFDA_alignmentPublishing(TimeSeries,opts);
+[opts, ResultStruct] = EFDA_alignmentMain(TimeSeries,opts);
 
 
 f1w = ResultStruct.FuncAligned(:,1);
