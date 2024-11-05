@@ -1,0 +1,31 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: EFDA alignment of movement signals
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Aleksei
+    family-names: Krotov
+    email: krotov.a@northeastern.edu
+    affiliation: Northeastern University
+    orcid: 'https://orcid.org/0000-0002-9451-1711'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.14042224
+url: >-
+  https://github.com/dondestamos/EFDA_MovementSignalAlignment
+abstract: >-
+  A short mex-pre-compiled MATLAB version of EFDA alignment
+  from fdawarp.time_warping of "fdasrvf" library. Extended
+  warp examples and demos are provided, as well as a
+  synthetic dataset demo of accuracy of the method, and an
+  experimental dataset.
+keywords:
+  - signal alignment
+  - time-warping
+  - temporal variability
+license: CC-BY-4.0
